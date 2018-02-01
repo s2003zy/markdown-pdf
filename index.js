@@ -11,13 +11,17 @@ var streamft = require('stream-from-to')
 
 tmp.setGracefulCleanup()
 
+var getUpackAsraPath = function (path){
+  return path.replace('app.asar', 'app.asar.unpacked')
+}
+
 function markdownpdf (opts) {
   opts = opts || {}
   opts.cwd = opts.cwd ? path.resolve(opts.cwd) : process.cwd()
   opts.phantomPath = opts.phantomPath || require('phantomjs-prebuilt').path
-  opts.runningsPath = opts.runningsPath ? path.resolve(opts.runningsPath) : path.join(__dirname, 'runnings.js')
-  opts.cssPath = opts.cssPath ? path.resolve(opts.cssPath) : path.join(__dirname, 'css', 'pdf.css')
-  opts.highlightCssPath = opts.highlightCssPath ? path.resolve(opts.highlightCssPath) : path.join(__dirname, 'css', 'highlight.css')
+  opts.runningsPath = opts.runningsPath ? path.resolve(opts.runningsPath) : path.join(getUpackAsraPath(__dirname), 'runnings.js')
+  opts.cssPath = opts.cssPath ? path.resolve(opts.cssPath) : path.join(getUpackAsraPath(__dirname), 'css', 'pdf.css')
+  opts.highlightCssPath = opts.highlightCssPath ? path.resolve(opts.highlightCssPath) : path.join(getUpackAsraPath(__dirname), 'css', 'highlight.css')
   opts.paperFormat = opts.paperFormat || 'A4'
   opts.paperOrientation = opts.paperOrientation || 'portrait'
   opts.paperBorder = opts.paperBorder || '2cm'
@@ -31,6 +35,8 @@ function markdownpdf (opts) {
   opts.remarkable.syntax = opts.remarkable.syntax || []
 
   var md = ''
+
+  
 
   var mdToHtml = through(
     function transform (chunk, enc, cb) {
@@ -100,7 +106,7 @@ function markdownpdf (opts) {
       htmlToTmpHtmlFile.on('finish', function () {
         // Invoke phantom to generate the PDF
         var childArgs = [
-          path.join(__dirname, 'phantom', 'render.js'),
+          path.join(getUpackAsraPath(__dirname), 'phantom', 'render.js'),
           tmpHtmlPath,
           tmpPdfPath,
           opts.cwd,
